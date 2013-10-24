@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 为Spring 配置数据源 使用c3p0作为连接池 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context ="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	                                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<!-- 测试用bean -->
+	<bean class="me.project.bean.TestBean" name="testBean"></bean>
+	<!-- 载入配置文件-->
+	<context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true"/>
+	<!-- c3p0 -->
+	<bean id="c3p0DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="minPoolSize" value="1" />
+		<property name="maxPoolSize" value="20" />
+		<property name="initialPoolSize" value="1" />
+		<property name="maxIdleTime" value="25000" />
+		<property name="acquireIncrement" value="1" />
+		<property name="acquireRetryAttempts" value="30" />
+		<property name="acquireRetryDelay" value="1000" />
+		<property name="testConnectionOnCheckin" value="true" />
+		<property name="automaticTestTable" value="c3p0TestTable" />
+		<property name="idleConnectionTestPeriod" value="18000" />
+		<property name="checkoutTimeout" value="3000" />
+	</bean>
+	
+	<!-- LocalSessionFactoryBean -->
+	<bean id="HibernateFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="c3p0DataSource"/>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>me.project.model</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="iDateSet4Hibernate" class="me.project.dao.IDateSet4Hibernate" >
+		<property name="HibernateFactory" ref="HibernateFactory"/>
+	</bean>
+</beans>
