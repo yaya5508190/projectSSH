@@ -2,6 +2,6 @@ package me.project.bean;
 
 public class TestBean {
 	public TestBean(){
-		System.out.println("java beanÒÑ±»³õÊ¼»¯");
+		System.out.println("java bean å·²è¢«åˆå§‹åŒ–");
 	}
 }
