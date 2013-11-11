@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 为Spring 配置数据源 使用c3p0作为连接池 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context ="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-	                                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
-	<!-- 测试用bean -->
-	<bean class="me.project.bean.TestBean" name="testBean"></bean>
+	                                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	                                 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd 
+	                                 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd ">
+	 <!-- 为Spring 配置数据源 使用c3p0作为连接池 -->
 	<!-- 载入配置文件-->
 	<context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true"/>
 	<!-- c3p0 -->
@@ -44,7 +46,24 @@
 			</list>
 		</property>
 	</bean>
-	<bean id="iDateSet4Hibernate" class="me.project.dao.IDateSet4Hibernate" >
+	<!--hibernate事务-->
+	<tx:annotation-driven transaction-manager="txManager"/>
+	<bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="HibernateFactory"/>
+	</bean>
+	<!-- Transaction advice -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Throwable"/>
+			<tx:method name="query*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="serviceOperation" expression="execution(* me.project.service..*.*(..))"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation"/>
+  	</aop:config>
+  	
+  	<bean id="iDateSet4Hibernate" class="me.project.dao.IDateSet4Hibernate" >
 		<property name="HibernateFactory" ref="HibernateFactory"/>
 	</bean>
 </beans>

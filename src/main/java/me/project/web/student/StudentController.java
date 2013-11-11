@@ -18,7 +18,7 @@ public class StudentController {
 	StudentService studentService;
 	
 	@RequestMapping(value = "/insert")
-	public String login() {
+	public String insertStudent() throws Exception{
 		Student student = new Student();
 		student.setId(1);
 		student.setName("yx");
